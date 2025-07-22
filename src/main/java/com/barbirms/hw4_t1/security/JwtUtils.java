@@ -3,6 +3,7 @@ package com.barbirms.hw4_t1.security;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import io.jsonwebtoken.security.Keys;
@@ -16,7 +17,7 @@ public class JwtUtils {
             "15secret00secret098123452100secret12345678910" +
             "1112131415secret00secret0981234521";
 
-    private final int EXPIRE = 40000;
+    private final int EXPIRE = 60000;
 
     public String generateToken(Authentication authentication) {
         UserDetailsImpl user = (UserDetailsImpl) authentication.getPrincipal();
