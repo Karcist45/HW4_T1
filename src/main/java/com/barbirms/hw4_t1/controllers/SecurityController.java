@@ -28,6 +28,9 @@ public class SecurityController {
     UserRepository userRepository;
 
     @Autowired
+    RevokeRepository revokeRepository;
+
+    @Autowired
     RoleRepository roleRepository;
 
     @Autowired
@@ -101,5 +104,18 @@ public class SecurityController {
                     String newToken = jwtUtils.generateTokenByLogin(userEntity.login);
                     return ResponseEntity.ok(new RefreshResponse(token, newToken));
                 }).get();
+    }
+
+    @DeleteMapping("/signout")
+    public ResponseEntity<?> logout(@RequestBody LogoutRequest request) {
+        String accessToken = request.accessToken;
+        String refreshToken = request.refreshToken;
+
+        refreshTokenService.deleteToken(refreshToken);
+        var revoke = new RevokeEntity();
+        revoke.token = accessToken;
+
+        revokeRepository.save(revoke);
+        return ResponseEntity.ok(revoke);
     }
 }

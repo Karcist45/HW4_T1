@@ -17,7 +17,7 @@ public class JwtUtils {
             "15secret00secret098123452100secret12345678910" +
             "1112131415secret00secret0981234521";
 
-    private final int EXPIRE = 60000;
+    private final int EXPIRE = 120000;
 
     public String generateToken(Authentication authentication) {
         UserDetailsImpl user = (UserDetailsImpl) authentication.getPrincipal();

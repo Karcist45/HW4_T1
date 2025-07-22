@@ -1,5 +1,6 @@
 package com.barbirms.hw4_t1.security;
 
+import com.barbirms.hw4_t1.persistence.RevokeRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,6 +27,9 @@ public class JwtFilter extends OncePerRequestFilter {
     @Autowired
     private MyUserDetailsService userDetailsService;
 
+    @Autowired
+    private RevokeRepository revokeRepository;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String header = request.getHeader("Authorization");
@@ -38,6 +42,10 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
+        if (revokeRepository.existsByToken(token)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
         if (jwtUtils.validateToken(token)) {
             String username = jwtUtils.getUserNameFromJwtToken(token);
 

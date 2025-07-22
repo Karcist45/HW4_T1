@@ -22,4 +22,4 @@ To refresh the token, use ``POST /auth/refresh`` here's the example:
 ```
 You can get refresh token in the same response where you got access token
 
-Jwt expiration time is set to 60 seconds to ease testing of refreshing
+Jwt expiration time is set to 120 seconds to ease testing of refreshing
