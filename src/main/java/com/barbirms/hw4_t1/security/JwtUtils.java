@@ -16,13 +16,16 @@ public class JwtUtils {
             "15secret00secret098123452100secret12345678910" +
             "1112131415secret00secret0981234521";
 
-    private final int EXPIRE = 1500000;
+    private final int EXPIRE = 40000;
 
     public String generateToken(Authentication authentication) {
         UserDetailsImpl user = (UserDetailsImpl) authentication.getPrincipal();
+        return generateTokenByLogin(user.getUsername());
+    }
 
+    public String generateTokenByLogin(String login) {
         return Jwts.builder()
-                .setSubject(user.getUsername())
+                .setSubject(login)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + EXPIRE))
                 .signWith(myKey(), SignatureAlgorithm.HS512)

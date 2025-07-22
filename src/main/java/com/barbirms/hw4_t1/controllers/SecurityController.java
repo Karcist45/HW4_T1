@@ -2,6 +2,7 @@ package com.barbirms.hw4_t1.controllers;
 
 import com.barbirms.hw4_t1.persistence.*;
 import com.barbirms.hw4_t1.security.JwtUtils;
+import com.barbirms.hw4_t1.security.RefreshTokenService;
 import com.barbirms.hw4_t1.security.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +36,9 @@ public class SecurityController {
     @Autowired
     JwtUtils jwtUtils;
 
+    @Autowired
+    RefreshTokenService refreshTokenService;
+
     @PostMapping("/signin")
     public ResponseEntity<?> authenticate(@RequestBody UserDTO user) {
         Authentication authentication = authenticationManager.authenticate(
@@ -47,7 +51,10 @@ public class SecurityController {
                 .map(GrantedAuthority::getAuthority)
                 .toList();
 
-        return ResponseEntity.ok(new JwtResponse(token, userDetails.getUsername(), userDetails.getEmail(), roles));
+        TokenEntity tokenEntity = refreshTokenService.refreshToken(userDetails.getUsername());
+
+
+        return ResponseEntity.ok(new JwtResponse(token, tokenEntity.token, userDetails.getUsername(), userDetails.getEmail(), roles));
     }
 
     @PostMapping("/signup")
@@ -59,16 +66,16 @@ public class SecurityController {
 
         roles.forEach(role -> {
             switch (role) {
-                case "admin":
-                    RoleEntity adminRole = roleRepository.findByRole(UserRole.admin);
+                case "ROLE_ADMIN":
+                    RoleEntity adminRole = roleRepository.findByUserRole(UserRole.ROLE_ADMIN);
                     actualRoles.add(adminRole);
                     break;
-                case "premium_user":
-                    RoleEntity premiumRole = roleRepository.findByRole(UserRole.premium_user);
+                case "ROLE_PREMIUM_USER":
+                    RoleEntity premiumRole = roleRepository.findByUserRole(UserRole.ROLE_PREMIUM_USER);
                     actualRoles.add(premiumRole);
                     break;
-                case "guest":
-                    RoleEntity guestRole = roleRepository.findByRole(UserRole.guest);
+                case "ROLE_GUEST":
+                    RoleEntity guestRole = roleRepository.findByUserRole(UserRole.ROLE_GUEST);
                     actualRoles.add(guestRole);
                     break;
                 default:
@@ -76,9 +83,23 @@ public class SecurityController {
             }
         });
 
-        newUser.roles = actualRoles;
+        newUser.setRoles(actualRoles);
         userRepository.save(newUser);
 
         return ResponseEntity.ok(newUser);
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refresh(@RequestBody RefreshRequest refreshRequest) {
+        String token = refreshRequest.refresh_token;
+
+        var idk = refreshTokenService.findByToken(token);
+        return refreshTokenService.findByToken(token)
+                .map(refreshTokenService::checkExpired)
+                .map(tokenEntity -> tokenEntity.user)
+                .map(userEntity -> {
+                    String newToken = jwtUtils.generateTokenByLogin(userEntity.login);
+                    return ResponseEntity.ok(new RefreshResponse(token, newToken));
+                }).get();
     }
 }

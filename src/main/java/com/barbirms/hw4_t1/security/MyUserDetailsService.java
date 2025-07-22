@@ -18,7 +18,6 @@ public class MyUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<UserEntity> client = userSecurityRepository.findByLogin(username);
-        return client.map(UserDetailsImpl::new)
-                .orElseThrow(() -> new UsernameNotFoundException(username + " not found"));
+        return new UserDetailsImpl(client.orElse(null));
     }
 }

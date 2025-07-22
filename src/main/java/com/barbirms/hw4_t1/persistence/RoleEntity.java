@@ -10,11 +10,11 @@ public class RoleEntity {
     public int id;
 
     @Enumerated(EnumType.STRING)
-    public UserRole role;
+    public UserRole userRole;
 
     public RoleEntity() {}
 
     public RoleEntity(UserRole role) {
-        this.role = role;
+        this.userRole = role;
     }
 }

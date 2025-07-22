@@ -2,6 +2,7 @@ package com.barbirms.hw4_t1.persistence;
 
 import jakarta.persistence.*;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -12,10 +13,10 @@ public class UserEntity {
 
     public String password;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable( joinColumns = @JoinColumn(name = "user_login"),
     inverseJoinColumns = @JoinColumn(name = "role_id"))
-    public Set<RoleEntity> roles;
+    private Set<RoleEntity> roles = new HashSet<>();
 
     @Column(unique=true)
     public String email;
@@ -25,5 +26,14 @@ public class UserEntity {
         this.password = password;
         this.email = email;
     }
+
     public UserEntity() {}
+
+    public Set<RoleEntity> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<RoleEntity> roles) {
+        this.roles = roles;
+    }
 }
